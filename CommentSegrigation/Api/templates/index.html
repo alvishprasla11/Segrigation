@@ -106,6 +106,22 @@
             z-index: 2;
         }
         
+        .animated-dot {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 3;
+            animation: pulseAnimation 2s infinite;
+        }
+        
+        @keyframes pulseAnimation {
+            0% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0); }
+        }
+        
         .form-container {
             position: relative;
             background-color: rgba(0, 0, 0, 0.7);
@@ -123,7 +139,6 @@
             margin-bottom: 30px;
             text-transform: uppercase;
             background: linear-gradient(135deg, #ffffff 0%, #c0c0c0 100%);
-            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -173,59 +188,19 @@
         
         .response-container {
             margin-top: 30px;
-            background: rgba(20, 20, 30, 0.8);
+            background: rgba(30, 30, 40, 0.6);
             border: 1px solid rgba(100, 100, 255, 0.3);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
-        .response-header {
-            background: linear-gradient(90deg, rgba(64,122,255,0.2) 0%, rgba(162,89,255,0.2) 100%);
-            padding: 15px 20px;
-            font-size: 16px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .response-body {
+            border-radius: 8px;
             padding: 20px;
+            font-size: 18px;
+            word-wrap: break-word;
         }
         
-        .response-item {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .response-key {
-            flex: 0 0 120px;
-            color: #a0a0a0;
-            font-size: 14px;
-            text-transform: uppercase;
+        .response-message {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 5px;
             letter-spacing: 1px;
-        }
-        
-        .response-value {
-            flex: 1;
-            font-size: 16px;
-            padding: 8px 15px;
-            background: rgba(40, 40, 60, 0.6);
-            border-radius: 6px;
-            word-break: break-word;
-        }
-        
-        .response-value.positive {
-            border-left: 3px solid #4CAF50;
-        }
-        
-        .response-value.negative {
-            border-left: 3px solid #F44336;
-        }
-        
-        .response-value.neutral {
-            border-left: 3px solid #FFC107;
         }
         
         .label {
@@ -249,15 +224,6 @@
             h1 {
                 font-size: 2rem;
             }
-            
-            .response-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .response-key {
-                margin-bottom: 5px;
-            }
         }
     </style>
 </head>
@@ -272,6 +238,7 @@
         <div class="line line-horizontal" style="top: 50px; left: 0;"></div>
         <div class="dot" style="top: 47px; left: 100px;"></div>
         <div class="line line-vertical" style="top: 50px; left: 100px;"></div>
+        <div class="animated-dot" style="top: 50px; left: 50px;"></div>
         
         <!-- Top Right Lines -->
         <div class="line line-horizontal" style="top: 80px; right: 0;"></div>
@@ -281,11 +248,13 @@
         <div class="dot" style="top: 127px; right: 150px;"></div>
         <div class="line line-vertical" style="top: 130px; right: 150px; height: 50px;"></div>
         <div class="dot" style="top: 177px; right: 150px;"></div>
+        <div class="animated-dot" style="top: 80px; right: 50px;"></div>
         
         <!-- Bottom Left Lines -->
         <div class="line line-horizontal" style="bottom: 100px; left: 0; width: 120px;"></div>
         <div class="dot" style="bottom: 97px; left: 120px;"></div>
         <div class="line line-vertical" style="bottom: 0; left: 120px; height: 100px;"></div>
+        <div class="animated-dot" style="bottom: 100px; left: 60px;"></div>
         
         <!-- Bottom Right Lines -->
         <div class="line line-horizontal" style="bottom: 150px; right: 0; width: 70px;"></div>
@@ -293,6 +262,7 @@
         <div class="line line-vertical" style="bottom: 150px; right: 70px; height: 70px;"></div>
         <div class="line line-horizontal" style="bottom: 220px; right: 70px; width: 50px;"></div>
         <div class="dot" style="bottom: 217px; right: 120px;"></div>
+        <div class="animated-dot" style="bottom: 150px; right: 35px;"></div>
     </div>
     
     <div class="container">
@@ -307,10 +277,7 @@
                 
                 <input type="submit" value="Submit">
             </form>
-            <div id="responseContainer" class="response-container" style="display: none;">
-                <div class="response-header">AI Analysis Results</div>
-                <div class="response-body" id="responseBody"></div>
-            </div>
+            <div id="responseContainer" class="response-container" style="display: none;"></div>
         </div>
     </div>
     
@@ -332,120 +299,32 @@
             .then(response => response.json())
             .then(data => {
                 const responseContainer = document.getElementById('responseContainer');
-                const responseBody = document.getElementById('responseBody');
-                
-                // Clear previous results
-                responseBody.innerHTML = '';
-                
-                // Display each key-value pair in a formatted way
-                Object.entries(data).forEach(([key, value]) => {
-                    const item = document.createElement('div');
-                    item.className = 'response-item';
-                    
-                    const keyEl = document.createElement('div');
-                    keyEl.className = 'response-key';
-                    keyEl.textContent = key;
-                    
-                    const valueEl = document.createElement('div');
-                    valueEl.className = 'response-value';
-                    
-                    // Check if the value contains positive/negative keywords
-                    if (typeof value === 'string') {
-                        if (value.toLowerCase().includes('positive')) {
-                            valueEl.classList.add('positive');
-                        } else if (value.toLowerCase().includes('negative')) {
-                            valueEl.classList.add('negative');
-                        } else {
-                            valueEl.classList.add('neutral');
-                        }
-                    }
-                    
-                    valueEl.textContent = value;
-                    
-                    item.appendChild(keyEl);
-                    item.appendChild(valueEl);
-                    responseBody.appendChild(item);
-                });
-                
-                // Show the response container
                 responseContainer.style.display = 'block';
+                
+                // Extract just the value from the JSON response
+                // This will handle both {"message": "Food (negative)"} and {"Segrigator": "quality (neutral)"}
+                if (data) {
+                    // Get the first value from the JSON object, regardless of key name
+                    const firstValue = Object.values(data)[0];
+                    responseContainer.textContent = firstValue;
+                } else {
+                    responseContainer.textContent = "No response data received";
+                }
                 
                 // Reset button
                 submitButton.value = originalText;
                 submitButton.disabled = false;
-                
-                // Scroll to the response if needed
-                responseContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             })
             .catch(error => {
                 const responseContainer = document.getElementById('responseContainer');
-                const responseBody = document.getElementById('responseBody');
-                
                 responseContainer.style.display = 'block';
-                responseBody.innerHTML = `
-                    <div class="response-item">
-                        <div class="response-key">Error</div>
-                        <div class="response-value negative">${error}</div>
-                    </div>
-                `;
+                responseContainer.textContent = 'Error: ' + error;
                 
                 // Reset button
                 submitButton.value = originalText;
                 submitButton.disabled = false;
             });
         });
-        
-        // Create animated dots for the circuit lines
-        function createAnimatedDots() {
-            const numDots = 5;
-            const circuitLines = document.querySelector('.circuit-lines');
-            
-            for (let i = 0; i < numDots; i++) {
-                const dot = document.createElement('div');
-                dot.classList.add('animated-dot');
-                dot.style.position = 'absolute';
-                dot.style.width = '4px';
-                dot.style.height = '4px';
-                dot.style.borderRadius = '50%';
-                dot.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-                dot.style.zIndex = '3';
-                
-                // Random position along existing lines
-                const positions = [
-                    { top: '50px', left: Math.random() * 100 + 'px' },
-                    { top: '80px', right: Math.random() * 100 + 'px' },
-                    { bottom: '100px', left: Math.random() * 120 + 'px' },
-                    { bottom: Math.random() * 100 + 150 + 'px', right: '70px' }
-                ];
-                
-                const pos = positions[Math.floor(Math.random() * positions.length)];
-                for (let prop in pos) {
-                    dot.style[prop] = pos[prop];
-                }
-                
-                // Add animation
-                dot.style.animation = `moveDot ${Math.random() * 3 + 2}s linear infinite`;
-                circuitLines.appendChild(dot);
-            }
-        }
-        
-        // Add this to CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes moveDot {
-                0% { opacity: 0; transform: scale(0); }
-                50% { opacity: 1; transform: scale(1); }
-                100% { opacity: 0; transform: scale(0); }
-            }
-            
-            .animated-dot {
-                animation-delay: var(--delay, 0s);
-            }
-        `;
-        document.head.appendChild(style);
-        
-        // Call the function after page load
-        window.addEventListener('load', createAnimatedDots);
     </script>
 </body>
 </html>
