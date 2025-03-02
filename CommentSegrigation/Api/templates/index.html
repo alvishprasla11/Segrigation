@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comment Segregation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #000000;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+        }
+        
+        .glow-orbs {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+        }
+        
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(64,122,255,1) 0%, rgba(29,69,253,0) 70%);
+            top: -100px;
+            left: -100px;
+            animation: float 15s ease-in-out infinite alternate;
+        }
+        
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(162,89,255,1) 0%, rgba(162,89,255,0) 70%);
+            bottom: -150px;
+            right: -150px;
+            animation: float 20s ease-in-out infinite alternate-reverse;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        .circuit-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 1;
+        }
+        
+        .line-horizontal {
+            height: 1px;
+            width: 100px;
+        }
+        
+        .line-vertical {
+            width: 1px;
+            height: 100px;
+        }
+        
+        .dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: white;
+            z-index: 2;
+        }
+        
+        .form-container {
+            position: relative;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffffff 0%, #c0c0c0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        textarea, input[type="text"] {
+            width: 100%;
+            background: rgba(30, 30, 40, 0.6);
+            border: 1px solid rgba(100, 100, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: rgba(100, 100, 255, 0.8);
+            box-shadow: 0 0 15px rgba(100, 100, 255, 0.3);
+        }
+        
+        input[type="submit"] {
+            background: linear-gradient(135deg, #407aff 0%, #a259ff 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        
+        input[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(100, 100, 255, 0.4);
+        }
+        
+        .response-container {
+            margin-top: 30px;
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid rgba(100, 100, 255, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .response-header {
+            background: linear-gradient(90deg, rgba(64,122,255,0.2) 0%, rgba(162,89,255,0.2) 100%);
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .response-body {
+            padding: 20px;
+        }
+        
+        .response-item {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .response-key {
+            flex: 0 0 120px;
+            color: #a0a0a0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .response-value {
+            flex: 1;
+            font-size: 16px;
+            padding: 8px 15px;
+            background: rgba(40, 40, 60, 0.6);
+            border-radius: 6px;
+            word-break: break-word;
+        }
+        
+        .response-value.positive {
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .response-value.negative {
+            border-left: 3px solid #F44336;
+        }
+        
+        .response-value.neutral {
+            border-left: 3px solid #FFC107;
+        }
+        
+        .label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0a0a0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .response-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .response-key {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+    
+    <div class="circuit-lines">
+        <!-- Top Left Lines -->
+        <div class="line line-horizontal" style="top: 50px; left: 0;"></div>
+        <div class="dot" style="top: 47px; left: 100px;"></div>
+        <div class="line line-vertical" style="top: 50px; left: 100px;"></div>
+        
+        <!-- Top Right Lines -->
+        <div class="line line-horizontal" style="top: 80px; right: 0;"></div>
+        <div class="dot" style="top: 77px; right: 100px;"></div>
+        <div class="line line-vertical" style="top: 80px; right: 100px;"></div>
+        <div class="line line-horizontal" style="top: 130px; right: 100px; width: 50px;"></div>
+        <div class="dot" style="top: 127px; right: 150px;"></div>
+        <div class="line line-vertical" style="top: 130px; right: 150px; height: 50px;"></div>
+        <div class="dot" style="top: 177px; right: 150px;"></div>
+        
+        <!-- Bottom Left Lines -->
+        <div class="line line-horizontal" style="bottom: 100px; left: 0; width: 120px;"></div>
+        <div class="dot" style="bottom: 97px; left: 120px;"></div>
+        <div class="line line-vertical" style="bottom: 0; left: 120px; height: 100px;"></div>
+        
+        <!-- Bottom Right Lines -->
+        <div class="line line-horizontal" style="bottom: 150px; right: 0; width: 70px;"></div>
+        <div class="dot" style="bottom: 147px; right: 70px;"></div>
+        <div class="line line-vertical" style="bottom: 150px; right: 70px; height: 70px;"></div>
+        <div class="line line-horizontal" style="bottom: 220px; right: 70px; width: 50px;"></div>
+        <div class="dot" style="bottom: 217px; right: 120px;"></div>
+    </div>
+    
+    <div class="container">
+        <div class="form-container">
+            <h1>Comment Segregation</h1>
+            <form id="commentForm" action="/api/" method="post">
+                <div class="label">Your Comment</div>
+                <textarea name="Comment" placeholder="Enter your comment" required></textarea>
+                
+                <div class="label">Headings (Optional)</div>
+                <input type="text" name="Headings" placeholder="Enter headings">
+                
+                <input type="submit" value="Submit">
+            </form>
+            <div id="responseContainer" class="response-container" style="display: none;">
+                <div class="response-header">Analysis Results</div>
+                <div class="response-body" id="responseBody"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('commentForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            
+            // Add loading effect to button
+            const submitButton = this.querySelector('input[type="submit"]');
+            const originalText = submitButton.value;
+            submitButton.value = "Processing...";
+            submitButton.disabled = true;
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                const responseContainer = document.getElementById('responseContainer');
+                const responseBody = document.getElementById('responseBody');
+                
+                // Clear previous results
+                responseBody.innerHTML = '';
+                
+                // Display each key-value pair in a formatted way
+                Object.entries(data).forEach(([key, value]) => {
+                    const item = document.createElement('div');
+                    item.className = 'response-item';
+                    
+                    const keyEl = document.createElement('div');
+                    keyEl.className = 'response-key';
+                    keyEl.textContent = key;
+                    
+                    const valueEl = document.createElement('div');
+                    valueEl.className = 'response-value';
+                    
+                    // Check if the value contains positive/negative keywords
+                    if (typeof value === 'string') {
+                        if (value.toLowerCase().includes('positive')) {
+                            valueEl.classList.add('positive');
+                        } else if (value.toLowerCase().includes('negative')) {
+                            valueEl.classList.add('negative');
+                        } else {
+                            valueEl.classList.add('neutral');
+                        }
+                    }
+                    
+                    valueEl.textContent = value;
+                    
+                    item.appendChild(keyEl);
+                    item.appendChild(valueEl);
+                    responseBody.appendChild(item);
+                });
+                
+                // Show the response container
+                responseContainer.style.display = 'block';
+                
+                // Reset button
+                submitButton.value = originalText;
+                submitButton.disabled = false;
+                
+                // Scroll to the response if needed
+                responseContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            })
+            .catch(error => {
+                const responseContainer = document.getElementById('responseContainer');
+                const responseBody = document.getElementById('responseBody');
+                
+                responseContainer.style.display = 'block';
+                responseBody.innerHTML = `
+                    <div class="response-item">
+                        <div class="response-key">Error</div>
+                        <div class="response-value negative">${error}</div>
+                    </div>
+                `;
+                
+                // Reset button
+                submitButton.value = originalText;
+                submitButton.disabled = false;
+            });
+        });
+        
+        // Create animated dots for the circuit lines
+        function createAnimatedDots() {
+            const numDots = 5;
+            const circuitLines = document.querySelector('.circuit-lines');
+            
+            for (let i = 0; i < numDots; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('animated-dot');
+                dot.style.position = 'absolute';
+                dot.style.width = '4px';
+                dot.style.height = '4px';
+                dot.style.borderRadius = '50%';
+                dot.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+                dot.style.zIndex = '3';
+                
+                // Random position along existing lines
+                const positions = [
+                    { top: '50px', left: Math.random() * 100 + 'px' },
+                    { top: '80px', right: Math.random() * 100 + 'px' },
+                    { bottom: '100px', left: Math.random() * 120 + 'px' },
+                    { bottom: Math.random() * 100 + 150 + 'px', right: '70px' }
+                ];
+                
+                const pos = positions[Math.floor(Math.random() * positions.length)];
+                for (let prop in pos) {
+                    dot.style[prop] = pos[prop];
+                }
+                
+                // Add animation
+                dot.style.animation = `moveDot ${Math.random() * 3 + 2}s linear infinite`;
+                circuitLines.appendChild(dot);
+            }
+        }
+        
+        // Add this to CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes moveDot {
+                0% { opacity: 0; transform: scale(0); }
+                50% { opacity: 1; transform: scale(1); }
+                100% { opacity: 0; transform: scale(0); }
+            }
+            
+            .animated-dot {
+                animation-delay: var(--delay, 0s);
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Call the function after page load
+        window.addEventListener('load', createAnimatedDots);
+    </script>
+</body>
+</html>

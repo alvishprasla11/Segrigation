@@ -21,7 +21,7 @@ def Segrigation(request):
                 Headings = ""
             
             response = gemini(Comment, Headings)
-            return JsonResponse({"message": response})
+            return JsonResponse({"Segrigator": response})
         except Exception as e:
             logging.error(f"Exception: {e}")
             return JsonResponse({"error": str(e)}, status=500)

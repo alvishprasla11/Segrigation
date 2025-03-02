@@ -14,7 +14,7 @@ def gemini(comment,headings):
                                               and after that inside a bracket write if it is positive/neutral/negative 
                                               so you will be returning just two words the heading it falls under and is it postive/negative/neutral according to you""")
         else:
-            response = model.generate_content(f"""Take this comment: {comment}      and segrigate it putting it in one of the {headings} which ever you think it falls under.
+            response = model.generate_content(f"""Take this comment: {comment}      and segrigate it putting it in one of the {headings} which ever you think it falls under. DO NOT MAKE YOUR OWN JUST CHOOSE ONE AND RETURN THAT.
                                               and after that inside a bracket write if it is positive/neutral/negative 
                                               so you will be returning just two words the heading it falls under and is it postive/negative/neutral according to you
                                               if it falls under two or three max given headings give them and their positive/neutral/negative  seprated with a comma so max 6 letters that way only and only if it falls or else try to just return 1""")
